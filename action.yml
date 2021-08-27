@@ -1,26 +1,47 @@
-name: 'action-template'
-description: 'description'
+name: 'Composite Node Setup'
+description: 'Composite Basic Node'
 inputs:
-  input:
-    description: 'description'
+  nodeVersion:
     required: false
-    default: ''
-outputs:
-  result:
-    description: "results"
-    value: "${{ steps.action.outputs.result }}"
+    description: 'what node version to install'
+    default: '12'
+  npmToken:
+    required: true
+    description: 'token used for NPM authentication'
+outputs: {}
 runs:
   using: "composite"
   steps:
-    - name: install cfn_nag_scan
-      id: install
+    - id: checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: "0"
+    - id: setup-node
+      uses: actions/setup-node@v2
+        with:
+          node-version: ${{inputs.nodeVersion}}
+    - id: install-npm-credentials
       run: |
-        echo "::group::Title"
-        echo "some message"
+        echo "::group::Install NPM Credentials"
+        echo "//registry.npmjs.org/:_authToken=${{ inputs.npmToken }}" >> ~/.npmrc
         echo "::endgroup::"
       shell: bash
-    - name: Print Output
-      id: print
+    - id: get-yarn-cache
       run: |
-        echo "${{ steps.action.outputs.result }}"
+        echo "::group::Get yarn cache directory"
+        echo "::set-output name=dir::$(yarn cache dir)"
+        echo "::endgroup::"
+      shell: bash
+    - id: restore-yarn-cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.yarn-cache.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-
+    - id: yarn-install
+      run: |
+        echo "::group::Yarn Install"
+        yarn install --frozen-lockfile
+        echo "::endgroup::"
       shell: bash
