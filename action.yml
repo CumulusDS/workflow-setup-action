@@ -18,8 +18,8 @@ runs:
         fetch-depth: "0"
     - id: setup-node
       uses: actions/setup-node@v2
-        with:
-          node-version: ${{inputs.nodeVersion}}
+      with:
+        node-version: ${{ inputs.nodeVersion }}
     - id: install-npm-credentials
       run: |
         echo "::group::Install NPM Credentials"
