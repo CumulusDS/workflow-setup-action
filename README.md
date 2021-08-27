@@ -4,14 +4,38 @@
 [![PR AutoLabeler][autolabeler-badge]][autolabeler-url]
 [![Assigner][assigner-badge]][assigner-url]
 
-Description
+
+Composite Github Action the simply the setup steps of our workflow jobs by combining
+steps into a single [Composite Action][Composite Action]
+
+[Composite actions do not currently support the `if` conditional][if]
+
+[Composite Action]: https://docs.github.com/en/actions/creating-actions/creating-a-composite-action
+[if]: https://github.com/actions/runner/issues/646#issuecomment-901358313
 
 ### Inputs
 #### `nodeVersion`
 The version of node to install
+Default: 12
 
 #### `npmToken`
 Token to be used for installing private NPM packages
+
+#### `ref`
+Checkout ref
+Default: ''
+
+#### `fetch-depth`
+Checkout fetch-depth
+Default: 1
+
+#### `path`
+Relative path under $GITHUB_WORKSPACE to place the repository
+Default: ''
+
+#### `clean`
+Whether to execute `git clean -ffdx && git reset --hard HEAD` before fetching
+Default: true
 
 ### Example usage
 ```yaml
@@ -20,6 +44,7 @@ Token to be used for installing private NPM packages
         with:
           nodeVersion: 12
           npmToken: ${{ secrets.NODE_AUTH_TOKEN }}
+          fetch-depth: 0
 ```
 
 
