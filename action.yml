@@ -8,6 +8,10 @@ inputs:
   npmToken:
     required: true
     description: 'token used for NPM authentication'
+  ref:
+    required: false
+    description: 'ref to checkout'
+    default: ''
 outputs: {}
 runs:
   using: "composite"
@@ -16,6 +20,7 @@ runs:
       uses: actions/checkout@v2
       with:
         fetch-depth: "0"
+        ref: ${{ inputs.ref }}
     - id: setup-node
       uses: actions/setup-node@v2
       with:
