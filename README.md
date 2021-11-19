@@ -37,6 +37,18 @@ Default: ''
 Whether to execute `git clean -ffdx && git reset --hard HEAD` before fetching
 Default: true
 
+#### `setup_ruby`
+Whether or not to execute ruby setup action
+Default: false
+
+#### `ruby_version`
+Desired version of Ruby
+Default (if enabled): 2.7
+
+#### `ruby_bundler_cache`
+Enable Ruby bundler-cache
+Default (if enabled): false
+
 ### Example usage
 ```yaml
       - name: Setup job
