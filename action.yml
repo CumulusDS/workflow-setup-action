@@ -8,6 +8,18 @@ inputs:
   npmToken:
     required: true
     description: "token used for NPM authentication"
+  vulnerabilityToken:
+    required: false
+    description: "token used for vulnerability checking"
+    default: ""
+  vulnerabilityLevel:
+    required: false
+    description: "Override CRITICAL level for failure on vulnerability check.  HIGH, MODERATE or LOW."
+    default: "CRITICAL"
+  vulnerabilityFail:
+    required: false
+    description: "Override failure on found vulnerabilities"
+    default: "false"
   ref:
     required: false
     description: "ref to checkout"
@@ -40,6 +52,13 @@ outputs: {}
 runs:
   using: "composite"
   steps:
+    - name: Check for failing vulnerabilities
+      uses: CumulusDS/check-critical-vulnerabilities@v1
+      if: inputs.vulnerabilityToken != ''
+      with:
+        token: ${{ inputs.vulnerabilityToken }}
+        level: ${{ inputs.vulnerabilityLevel }}
+        fail: ${{ inputs.vulnerabilityFail }}
     - name: Checkout
       id: checkout
       uses: actions/checkout@v2

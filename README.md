@@ -21,6 +21,18 @@ Default: 12
 #### `npmToken`
 Token to be used for installing private NPM packages
 
+#### `vulnerabilityToken`
+Token used for vulnerability checking
+If not set, vulnerabilities are not checked
+
+#### `vulnerabilityLevel`
+Override CRITICAL level for failure on vulnerability check.  HIGH, MODERATE or LOW.
+Default: `Critical`
+
+#### `vulnerabilityFail`
+Override failure on found vulnerabilities
+Default: `true`.  Set to `false` to not fail CI if Critical vulnerabilities found
+
 #### `ref`
 Checkout ref
 Default: ''
@@ -57,6 +69,7 @@ Default (if enabled): false
           nodeVersion: 12
           npmToken: ${{ secrets.NODE_AUTH_TOKEN }}
           fetch-depth: 0
+          vulnerabilityToken: ${{ secrets.SOME_TOKEN }
 ```
 
 
