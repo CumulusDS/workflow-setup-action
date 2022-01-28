@@ -1,33 +1,64 @@
-name: 'Composite Node Setup'
-description: 'Composite Basic Node'
+name: 'workflow-setup-action'
+description: 'Composite action for workflow setup'
 inputs:
   nodeVersion:
     required: false
-    description: 'what node version to install'
-    default: '12'
+    description: "what node version to install"
+    default: "12"
   npmToken:
     required: true
-    description: 'token used for NPM authentication'
+    description: "token used for NPM authentication"
+  vulnerabilityToken:
+    required: false
+    description: "token used for vulnerability checking"
+    default: ""
+  vulnerabilityLevel:
+    required: false
+    description: "Override CRITICAL level for failure on vulnerability check.  HIGH, MODERATE or LOW."
+    default: "CRITICAL"
+  vulnerabilityFail:
+    required: false
+    description: "Override failure on found vulnerabilities"
+    default: "false"
   ref:
     required: false
-    description: 'ref to checkout'
-    default: ''
+    description: "ref to checkout"
+    default: ""
   fetch-depth:
     required: false
-    description: 'checkout fetch-depth'
-    default: 1
+    description: "checkout fetch-depth"
+    default: "1"
   path:
     required: false
-    description: 'Relative path under $GITHUB_WORKSPACE to place the repository'
-    default: ''
+    description: "Relative path under $GITHUB_WORKSPACE to place the repository"
+    default: ""
   clean:
     required: false
-    description: 'Whether to execute `git clean -ffdx && git reset --hard HEAD` before fetching'
-    default: true
+    description: "Whether to execute `git clean -ffdx && git reset --hard HEAD` before fetching"
+    default: "true"
+  setup_ruby:
+    description: "Whether or not to execute ruby setup action"
+    default: "false"
+    required: false
+  ruby_version:
+    description: "Desired version of Ruby"
+    default: "2.7"
+    required: false
+  ruby_bundler_cache:
+    description: "Enable Ruby bundler-cache"
+    default: "false"
+    required: false
 outputs: {}
 runs:
   using: "composite"
   steps:
+    - name: Check for failing vulnerabilities
+      uses: CumulusDS/check-critical-vulnerabilities@v1
+      if: inputs.vulnerabilityToken != ''
+      with:
+        token: ${{ inputs.vulnerabilityToken }}
+        level: ${{ inputs.vulnerabilityLevel }}
+        fail: ${{ inputs.vulnerabilityFail }}
     - name: Checkout
       id: checkout
       uses: actions/checkout@v2
@@ -41,6 +72,13 @@ runs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ inputs.nodeVersion }}
+    - name: Setup Ruby
+      id: setup-ruby
+      uses: ruby/setup-ruby@v1
+      if: inputs.setup_ruby == 'true'
+      with:
+        ruby-version: ${{ inputs.ruby_version }}
+        bundler-cache: ${{ inputs.ruby_bundler_cache }}
     - name: Install NPM credentials
       id: install-npm-credentials
       run: |
