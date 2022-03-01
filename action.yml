@@ -69,7 +69,7 @@ runs:
         clean: ${{ inputs.clean }}
     - name: Setup Node
       id: setup-node
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.nodeVersion }}
     - name: Setup Ruby
