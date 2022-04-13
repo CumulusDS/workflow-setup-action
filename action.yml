@@ -1,6 +1,10 @@
 name: 'workflow-setup-action'
 description: 'Composite action for workflow setup'
 inputs:
+  packageManager:
+    required: false
+    description: "using yarn or lerna for dependency management"
+    default: "yarn"
   nodeVersion:
     required: false
     description: "what node version to install"
@@ -103,8 +107,17 @@ runs:
           ${{ runner.os }}-yarn-
     - name: yarn install
       id: yarn-install
+      if: inputs.packageManager == 'yarn'
       run: |
         echo "::group::Yarn Install"
         yarn install --frozen-lockfile
+        echo "::endgroup::"
+      shell: bash
+    - name: lerna bootstrap
+      id: lerna-bootstrap
+      if: inputs.packageManager == 'lerna'
+      run: |
+        echo "::group::Lerna Bootstrap"
+        npx lerna bootstrap --npm-client=yarn
         echo "::endgroup::"
       shell: bash
