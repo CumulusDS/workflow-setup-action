@@ -120,4 +120,7 @@ runs:
         echo "::group::Lerna Bootstrap"
         npx lerna bootstrap --npm-client=yarn
         echo "::endgroup::"
+        echo "::group::Lerna Build"
+        yarn lerna exec --no-bail --no-private "yarn build"
+        echo "::endgroup::"
       shell: bash
