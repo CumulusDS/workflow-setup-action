@@ -83,44 +83,46 @@ runs:
       with:
         ruby-version: ${{ inputs.ruby_version }}
         bundler-cache: ${{ inputs.ruby_bundler_cache }}
-    - name: Install NPM credentials
-      id: install-npm-credentials
-      run: |
-        echo "::group::Install NPM Credentials"
-        echo "//registry.npmjs.org/:_authToken=${{ inputs.npmToken }}" >> ~/.npmrc
-        echo "::endgroup::"
-      shell: bash
-    - name: Get yarn cache directory
+    - name: Get yarn v1 cache directory
       id: get-yarn-cache
+      if: inputs.packageManager == 'yarn'
       run: |
         echo "::group::Get yarn cache directory"
         echo "::set-output name=dir::$(yarn cache dir)"
         echo "::endgroup::"
       shell: bash
+    - name: Get yarn v3 cache directory
+      id: get-yarn3-cache
+      if: inputs.packageManager == 'yarn3'
+      run: |
+        echo "::group::Get yarn cache directory"
+        echo "::set-output name=dir::$(yarn config get cacheFolder)"
+        echo "::endgroup::"
+      shell: bash
     - name: Restore yarn cache directory
       id: restore-yarn-cache
+      if: inputs.packageManager == 'yarn' || inputs.packageManager == 'yarn3'
       uses: actions/cache@v3
       with:
-        path: ${{ steps.get-yarn-cache.outputs.dir }}
+        path: ${{ steps.get-yarn3-cache.outputs.dir || steps.get-yarn-cache.outputs.dir }}
         key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
         restore-keys: |
           ${{ runner.os }}-yarn-
-    - name: yarn install
+    - name: yarn v1 install
       id: yarn-install
       if: inputs.packageManager == 'yarn'
       run: |
         echo "::group::Yarn Install"
+        echo "//registry.npmjs.org/:_authToken=${{ inputs.npmToken }}" >> ~/.npmrc
         yarn install --frozen-lockfile
         echo "::endgroup::"
       shell: bash
-    - name: lerna bootstrap
-      id: lerna-bootstrap
-      if: inputs.packageManager == 'lerna'
+    - name: yarn v3 install
+      id: yarn3-install
+      if: inputs.packageManager == 'yarn3'
       run: |
-        echo "::group::Lerna Bootstrap"
-        npx lerna bootstrap --npm-client=yarn
-        echo "::endgroup::"
-        echo "::group::Lerna Build"
-        yarn lerna exec --no-bail --no-private "yarn build"
+        echo "::group::Yarn Install"
+        yarn config set npmAuthToken ${{ inputs.npmToken }}
+        yarn install --immutable
         echo "::endgroup::"
       shell: bash
